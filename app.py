@@ -1,4 +1,6 @@
 import streamlit as st
+import google.generativeai as genai
+genai.configure(api_key="AIzaSyAPr01OtkLHaNMXYc3nYRRbBuePtFE03OQ")
 
 # --- 1. CẤU HÌNH GIAO DIỆN CHUYÊN NGHIỆP ---
 st.set_page_config(page_title="Crisis AI Agent", page_icon="🛡️", layout="centered")
@@ -38,10 +40,41 @@ for msg in st.session_state.messages:
 if prompt := st.chat_input("Nhập cách xử lý khéo léo của bạn..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
-        st.write(prompt)
+        st.write(prompt
+     # --- ĐOẠN DÁN MỚI TẠI ĐÂY ---
+    model = genai.GenerativeModel('gemini-1.5-flash')
     
-    # AI phản hồi lại (giả lập khách hàng)
-    rely = "Đừng có xin lỗi suông! Tôi muốn gặp quản lý ngay lập tức!"
-    st.session_state.messages.append({"role": "assistant", "content": rely})
+    # Tạo nội dung để AI hiểu kịch bản
+    noi_dung = f"""
+    Bạn là khách hàng đang rất tức giận vì {tinh_huong}. 
+    Mức độ giận dữ: {muc_do}/10. 
+    Hãy phản hồi ngắn gọn, cực kỳ khó tính câu này của nhân viên: {prompt}
+    """
+    
+    # AI phản hồi
+    response = model.generate_content(noi_dung)
+    ai_reply = response.text
+    
+    # Hiển thị kết quả
+    st.session_state.messages.append({"role": "assistant", "content": ai_reply})
     with st.chat_message("assistant"):
-        st.write(rely)
+        st.write(ai_reply)
+      # 1. Gọi mô hình AI Gemini
+    model = genai.GenerativeModel('gemini-1.5-flash')
+    
+    # 2. Tạo nội dung hướng dẫn cho AI (Prompt)
+    huong_dan = f"""
+    Bạn là một khách hàng đang rất giận dữ về vấn đề: {crisis_type}.
+    Mức độ giận dữ của bạn là {anger_level}/10.
+    Hãy phản hồi câu chat của nhân viên một cách đanh đá, khó tính và ngắn gọn.
+    """
+    
+    # 3. Lấy phản hồi từ AI
+    response = model.generate_content(huong_dan + prompt)
+    ai_reply = response.text
+
+    # 4. Hiển thị lên màn hình
+    st.session_state.messages.append({"role": "assistant", "content": ai_reply})
+    with st.chat_message("assistant"):
+        st.write(ai_reply)
+              
