@@ -1,63 +1,47 @@
 import streamlit as st
-import random
 
-# --- CẤU HÌNH TRANG ---
-st.set_page_config(page_title="AI Crisis Bot", page_icon="🔥")
+# --- 1. CẤU HÌNH GIAO DIỆN CHUYÊN NGHIỆP ---
+st.set_page_config(page_title="Crisis AI Agent", page_icon="🛡️", layout="centered")
 
-# --- GIAO DIỆN SIDEBAR (THANH BÊN) ---
+# CSS để bo tròn khung chat và làm đẹp sidebar
+st.markdown("""
+    <style>
+    .stChatMessage { border-radius: 15px; border: 1px solid #f0f2f6; margin-bottom: 10px; }
+    [data-testid="stSidebar"] { background-color: #f8f9fa; border-right: 1px solid #eee; }
+    </style>
+    """, unsafe_allow_html=True)
+
+# --- 2. THANH BÊN (SIDEBAR) TÙY CHỈNH ---
 with st.sidebar:
     st.header("⚙️ Cài đặt giả lập")
-    crisis_type = st.selectbox(
-        "Chọn loại khủng hoảng:",
-        ["Chất lượng sản phẩm", "Thái độ nhân viên", "Phốt truyền thông"]
-    )
-    anger_level = st.slider("Mức độ giận dữ của khách:", 1, 10, 7)
-    if st.button("Làm mới cuộc hội thoại"):
+    st.divider()
+    tinh_huong = st.selectbox("🎯 Loại khủng hoảng:", ["Sản phẩm lỗi", "Thái độ nhân viên", "Tin đồn xấu"])
+    muc_do = st.select_slider("🔥 Mức độ giận dữ:", options=["Thấp", "Trung bình", "Cao", "Cực đoan"])
+    if st.button("🔄 Làm mới kịch bản"):
         st.session_state.messages = []
         st.rerun()
 
-# --- TIÊU ĐỀ CHÍNH ---
-st.title("🔥 AI Crisis Simulation Bot")
-st.markdown(f"**Tình huống:** {crisis_type} | **Độ khó:** Cấp độ {anger_level}")
-st.info("Nhiệm vụ: Hãy dùng kỹ năng PR để xoa dịu khách hàng đang giận dữ.")
+# --- 3. GIAO DIỆN CHÍNH ---
+st.title("🛡️ Crisis Simulation Bot")
+st.caption(f"Tình huống hiện tại: {tinh_huong} | Mức độ: {muc_do}")
 
-# --- KHỞI TẠO TIN NHẮN ĐẦU TIÊN ---
+# Khởi tạo tin nhắn đầu tiên nếu chưa có
 if "messages" not in st.session_state:
-    st.session_state.messages = []
-    first_msg = {
-        "role": "assistant", 
-        "content": f"TÔI KHÔNG THỂ CHẤP NHẬN ĐƯỢC! Tại sao bên các người làm ăn tắc trách về {crisis_type.lower()} như vậy hả??? Trả lời mau!"
-    }
-    st.session_state.messages.append(first_msg)
+    st.session_state.messages = [{"role": "assistant", "content": "TÔI CỰC KỲ THẤT VỌNG! Các người định giải quyết chuyện này thế nào đây???"}]
 
-# --- HIỂN THỊ LỊCH SỬ CHAT ---
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+# Hiển thị lịch sử chat
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]):
+        st.write(msg["content"])
 
-# --- XỬ LÝ PHẢN HỒI ---
-if prompt := st.chat_input("Nhập phản hồi của bạn..."):
-    # 1. Hiển thị tin nhắn của người dùng
+# Khung nhập phản hồi
+if prompt := st.chat_input("Nhập cách xử lý khéo léo của bạn..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
-        st.markdown(prompt)
-
-    # 2. Logic giả lập phản hồi của AI (Khách hàng)
-    # Trong thực tế, bạn sẽ kết nối API OpenAI/Gemini tại đây.
-    # Dưới đây là phản hồi giả lập để bạn test giao diện:
-    responses = [
-        "Đừng có xin lỗi suông! Tôi sẽ đăng chuyện này lên hội bóc phốt!",
-        "Giải quyết thế mà coi được à? Tôi muốn gặp quản lý ngay lập tức!",
-        "Bên bạn định coi thường khách hàng đến bao giờ nữa?",
-        "Tôi đã chụp màn hình lại hết rồi, đừng hòng chối cãi!"
-    ]
-    ai_reply = random.choice(responses)
-
-    # 3. Hiển thị tin nhắn của AI
+        st.write(prompt)
+    
+    # AI phản hồi lại (giả lập khách hàng)
+    rely = "Đừng có xin lỗi suông! Tôi muốn gặp quản lý ngay lập tức!"
+    st.session_state.messages.append({"role": "assistant", "content": rely})
     with st.chat_message("assistant"):
-        st.markdown(ai_reply)
-    st.session_state.messages.append({"role": "assistant", "content": ai_reply})
-
-# --- ĐÁNH GIÁ (FOOTER) ---
-st.divider()
-st.progress(anger_level * 10, text=f"Chỉ số khủng hoảng hiện tại: {anger_level}/10")
+        st.write(rely)
